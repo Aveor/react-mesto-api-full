@@ -1,0 +1,9 @@
+.header__list {
+    font-style: normal;
+    font-weight: normal;
+    font-size: 18px;
+    line-height: 22px;
+    list-style-type: none;
+    display: flex;
+    padding-top: 10px;
+  }

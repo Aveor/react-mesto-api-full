@@ -1,0 +1,10 @@
+.elements__description {
+    background-color: white;
+    border-radius: 0 0 10px 10px;
+    margin-top: -3px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-left: 21px;
+    padding-right: 18px;
+  }

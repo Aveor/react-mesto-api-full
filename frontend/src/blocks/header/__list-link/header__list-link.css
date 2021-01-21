@@ -1,0 +1,14 @@
+.header__list-link {
+    margin-left: 26px;
+    color: white;
+    text-decoration: none;
+    background-color: transparent;
+    border: none;
+    transition: opacity linear 0.5s;
+    cursor: pointer;
+  }
+  
+  .header__list-link:hover {
+    opacity: .6;
+  }
+  

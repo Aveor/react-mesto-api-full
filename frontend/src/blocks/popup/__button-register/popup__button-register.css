@@ -1,0 +1,22 @@
+.popup__button-register {
+    font-family: "Inter",
+      Arial,
+      sans-serif;
+    background-color: white;
+    color: black;
+    height: 50px;
+    width: 358px;
+    border-radius: 2px;
+    font-size: 18px;
+    line-height: 22px;
+    font-weight: 400;
+    margin-top: 216px;
+    margin-bottom: 15px;
+    transition: opacity linear 0.5s;
+    border-width: 0;
+  }
+  
+  .popup__button-register:hover {
+    cursor: pointer;
+    opacity: 0.85;
+  }

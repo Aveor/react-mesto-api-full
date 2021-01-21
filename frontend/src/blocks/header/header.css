@@ -1,0 +1,30 @@
+/* .header {
+    margin: 0 auto;
+    width: calc(100% - 31.09%);
+    border: none;
+    border-bottom: 1px solid rgba(84, 84, 84, .7);
+    max-width: 882px;
+  }
+  
+@media screen and (max-width: 767px) {
+  .header {
+    width: 100%;
+  }
+} */
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'Inter',
+    Arial,
+    sans-serif;
+  width: calc(100% - 31.2%);
+  border: none;
+  border-bottom: 1px solid rgba(84, 84, 84, 0.7);
+  border-top: 1px solid rgba(84, 84, 84, 0.7);
+  grid-area: header;
+  box-sizing: border-box;
+  position: relative;
+  margin: auto;
+}

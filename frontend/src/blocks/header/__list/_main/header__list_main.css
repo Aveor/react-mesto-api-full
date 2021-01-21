@@ -1,0 +1,18 @@
+@media (max-width: 700px) {
+    .header__list_main {
+      font-size: 18px;
+      line-height: 22px;
+      display: -webkit-box;
+      display: -ms-flexbox;
+      display: flex;
+      -webkit-box-orient: vertical;
+      -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+      flex-direction: column;
+      text-align: center;
+      position: absolute;
+      top: -120px;
+      right: calc(50% - 71px);
+    }
+  }
+  

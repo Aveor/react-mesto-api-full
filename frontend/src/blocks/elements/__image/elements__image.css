@@ -1,0 +1,10 @@
+.elements__image {
+    width: 282px;
+    border-radius: 10px 10px 0 0;
+    height: 282px;
+    cursor: pointer;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+  

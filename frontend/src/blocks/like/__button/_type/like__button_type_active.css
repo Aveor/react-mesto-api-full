@@ -1,0 +1,4 @@
+.like__button_type_active {
+    background-image: url(../../../../images/like_active.svg);
+    z-index: 1;
+}
