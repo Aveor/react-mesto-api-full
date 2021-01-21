@@ -150,7 +150,7 @@ deleteLike(id, token) {
 }
 
 const api = new Api({
-  baseUrl: 'https://api.aveor.students.nomoredomains.icu',
+  baseUrl: 'http://api.aveor.students.nomoredomains.icu',
 });
 
 export default api;
