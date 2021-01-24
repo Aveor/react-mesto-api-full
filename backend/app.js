@@ -5,9 +5,9 @@ const bodyParser = require('body-parser');
 const { celebrate, Joi, errors } = require('celebrate');
 const cors = require('cors');
 const { login, createUser } = require('./controllers/users');
-const auth = require('./middlewares/auth');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
-const routes = require('./routes/index');
+const cardRouter = require('./routes/cards');
+const userRouter = require('./routes/users');
 
 const {
   PORT = 3000,
@@ -34,14 +34,14 @@ app.get('/crash-test', () => {
   }, 0);
 });
 
-app.post('/signin', celebrate({
+app.use('/signin', celebrate({
   body: Joi.object().keys({
     email: Joi.string().email().required(),
     password: Joi.string().required().min(4),
   }),
 }), login);
 
-app.post('/signup', celebrate({
+app.use('/signup', celebrate({
   body: Joi.object().keys({
     name: Joi.string().max(30).min(2),
     about: Joi.string().max(30).min(2),
@@ -51,8 +51,8 @@ app.post('/signup', celebrate({
   }),
 }), createUser);
 
-app.use(auth);
-app.use('/', routes);
+app.use('/users', userRouter);
+app.use('/cards', cardRouter);
 
 app.use(errorLogger);
 app.use(errors());

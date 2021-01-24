@@ -2,9 +2,11 @@ const Card = require('../models/cards');
 const ValidationError = require('../errors/ValidationError');
 const NotFoundError = require('../errors/NotFoundError');
 const ForbiddenError = require('../errors/ForbiddenError');
+const AuthError = require('../errors/AuthError');
 
 const getAllCards = (req, res, next) => {
   Card.find({})
+    .orFail(new AuthError('Необходимо авторизоваться'))
     .then((cards) => {
       res.status(200).send(cards);
     })
@@ -13,24 +15,21 @@ const getAllCards = (req, res, next) => {
 
 const createCard = (req, res, next) => {
   const { name, link } = req.body;
-  Card.create({ name, link, owner: req.user._id })
+  return Card.create({ name, link, owner: req.user.id })
     .then((card) => {
-      res.status(200).send(card);
-    })
-    .catch((error) => {
-      if (error.name === 'ValidationError') {
+      if (!card) {
         throw new ValidationError('Ошибка валидации');
       }
-      next(error);
-    });
+      res.status(200).send(card);
+    })
+    .catch(next);
 };
 
 const deleteCard = (req, res, next) => {
-  const id = req.params.cardId;
-  Card.findById(id)
+  Card.findById({ _id: req.params.cardId })
     .orFail(new NotFoundError('Карточка не найдена'))
     .then((card) => {
-      if (card.owner.toString() !== req.user._id) {
+      if (card.owner.toString() !== req.user.id) {
         throw new ForbiddenError('Нет прав');
       }
       card.remove()
@@ -41,7 +40,7 @@ const deleteCard = (req, res, next) => {
 
 const addLike = (req, res, next) => {
   const id = req.params.cardId;
-  Card.findByIdAndUpdate(id, { $addToSet: { likes: req.user._id } }, { new: true })
+  Card.findByIdAndUpdate(id, { $addToSet: { likes: req.user.id } }, { new: true })
     .orFail(new NotFoundError('Такой карточки с таким id нет'))
     .then((data) => {
       res.send((data));
@@ -51,7 +50,7 @@ const addLike = (req, res, next) => {
 
 const deleteLike = (req, res, next) => {
   const id = req.params.cardId;
-  Card.findByIdAndUpdate(id, { $pull: { likes: req.user._id } }, { new: true })
+  Card.findByIdAndUpdate(id, { $pull: { likes: req.user.id } }, { new: true })
     .orFail(new NotFoundError('Такой карточки с таким id нет'))
     .then((data) => {
       res.send((data));

@@ -1,82 +1,68 @@
-const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 const User = require('../models/users');
-const ValidationError = require('../errors/ValidationError');
-const NotFoundError = require('../errors/NotFoundError');
 const ConflictError = require('../errors/ConflictError');
+const AuthError = require('../errors/AuthError');
+const NotFoundError = require('../errors/NotFoundError');
+const ValidationError = require('../errors/ValidationError');
 
-const { NODE_ENV, JWT_SECRET } = process.env;
+const { JWT_SECRET, NODE_ENV } = process.env;
 
 const getAllUsers = (req, res, next) => {
   User.find({})
-    .then((users) => res.send({ data: users }))
+    .orFail(new AuthError('Необходимо авторизоваться'))
+    .then((data) => res.status(200).send(data))
     .catch(next);
 };
 
 const getUser = (req, res, next) => {
   User.findById(req.params._id)
-    .orFail()
-    .catch(() => {
-      throw new NotFoundError('Пользователь не найден');
-    })
-    .then((user) => res.send({ data: user }))
+    .orFail(new NotFoundError('Пользователь не найден'))
+    .then((user) => res.status(200).send(user))
     .catch(next);
 };
 
 const getOneUser = (req, res, next) => {
-  User.findById(req.user)
-    .then((user) => {
-      if (!user) {
-        throw new NotFoundError('Пользователь не найден');
-      } return res.status(200).send(user);
-    })
-    .catch((error) => {
-      if (error.kind === 'ObjectId') {
-        throw new ValidationError('Нет корректного id');
-      }
-      next(error);
-    });
+  User.findById(req.user.id)
+    .orFail(new NotFoundError('Пользователь не найден'))
+    .then((user) => res.status(200).send(user))
+    .catch(next);
 };
 
 const createUser = (req, res, next) => {
-  const {
-    name,
-    about,
-    avatar,
-    email,
-    password,
-  } = req.body;
-  bcrypt
-    .hash(password, 10)
-    .then((hash) => User.create({
-      name,
-      about,
-      avatar,
-      email,
-      password: hash,
-    }))
-    .catch((err) => {
-      if (err.name === 'MongoError' || err.code === 11000) {
-        throw new ConflictError({ message: 'Пользователь с таким email уже зарегистрирован' });
-      } else next(err);
-    })
-    .then((user) => res.status(201).send({
-      data: {
-        name: user.name,
-        about: user.about,
-        avatar,
-        email: user.email,
-      },
-    }))
-    .catch(next);
+  const { email, password } = req.body;
+  bcrypt.hash(password, 10, (error, hash) => {
+    User.findOne({ email })
+      .then((user) => {
+        if (user) return next(new ConflictError('Такой пользователь уже существует'));
+        return User.create({ email, password: hash })
+          .then((newUser) => res
+            .status(200)
+            .send({ success: true, message: `Пользователь ${newUser.email} успешно создан` }))
+          .catch((err) => console.log(err));
+      })
+      .catch(next);
+  });
 };
 
 const login = (req, res, next) => {
   const { email, password } = req.body;
-  return User.findUserByCredentials(email, password)
-    .then((user) => {
-      const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', { expiresIn: '7d' });
-      res.send({ token });
+  return User.findOne({ email })
+    .select('+password')
+    .then(async (user) => {
+      if (!user) {
+        return next(new AuthError('Такого пользователя не существует'));
+      }
+      const isPasswordMatch = await bcrypt.compare(password, user.password);
+      if (!isPasswordMatch) {
+        return next(new AuthError('Не правильный логин или пароль'));
+      }
+      const token = jwt.sign(
+        { id: user.id },
+        `${NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret'}`,
+        { expiresIn: '7d' },
+      );
+      return res.status(200).send({ token });
     })
     .catch(next);
 };
@@ -85,7 +71,7 @@ const updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
 
   User.findByIdAndUpdate(
-    req.user._id,
+    { _id: req.user.id },
     {
       avatar,
     },
@@ -101,7 +87,7 @@ const updateAvatar = (req, res, next) => {
       }
       throw new ValidationError({ message: 'Запрос некорректен' });
     })
-    .then((updatedAvatar) => res.send(updatedAvatar))
+    .then((user) => res.send(user))
     .catch(next);
 };
 
@@ -109,7 +95,7 @@ const updateProfile = (req, res, next) => {
   const { name, about } = req.body;
 
   User.findByIdAndUpdate(
-    req.user._id,
+    { _id: req.user.id },
     {
       name,
       about,
@@ -126,7 +112,7 @@ const updateProfile = (req, res, next) => {
       }
       throw new ValidationError({ message: 'Запрос некорректен' });
     })
-    .then((updatedUser) => res.send(updatedUser))
+    .then((user) => res.send(user))
     .catch(next);
 };
 

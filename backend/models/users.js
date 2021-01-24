@@ -1,7 +1,5 @@
-const bcrypt = require('bcryptjs');
 const moongoose = require('mongoose');
 const validator = require('validator');
-const AuthError = require('../errors/AuthError');
 
 const usersSchema = new moongoose.Schema({
   name: {
@@ -44,22 +42,5 @@ const usersSchema = new moongoose.Schema({
     select: false,
   },
 });
-
-// eslint-disable-next-line func-names
-usersSchema.statics.findUserByCredentials = function (email, password) {
-  return this.findOne({ email }).select('+password')
-    .then((user) => {
-      if (!user) {
-        throw new AuthError('Неправильные почта или пароль');
-      }
-      return bcrypt.compare(password, user.password)
-        .then((matched) => {
-          if (!matched) {
-            throw new AuthError('Неправильные почта или пароль');
-          }
-          return user;
-        });
-    });
-};
 
 module.exports = moongoose.model('user', usersSchema);
