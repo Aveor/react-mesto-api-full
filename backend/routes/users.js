@@ -14,8 +14,9 @@ const userRouter = express.Router();
 userRouter.get('/', auth, getAllUsers);
 userRouter.get('/me', auth, getOneUser);
 userRouter.get('/:id', celebrate({
-  body: Joi.object().keys({
-    _id: Joi.string().length(24).hex(),
+  params: Joi.object().keys({
+    id: Joi.string().required().required().length(24)
+      .hex(),
   }),
 }), getUser);
 

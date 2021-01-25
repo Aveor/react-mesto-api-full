@@ -8,6 +8,7 @@ const { login, createUser } = require('./controllers/users');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const cardRouter = require('./routes/cards');
 const userRouter = require('./routes/users');
+const NotFoundError = require('./errors/NotFoundError.js');
 
 const {
   PORT = 3000,
@@ -34,14 +35,14 @@ app.get('/crash-test', () => {
   }, 0);
 });
 
-app.use('/signin', celebrate({
+app.post('/signin', celebrate({
   body: Joi.object().keys({
     email: Joi.string().email().required(),
-    password: Joi.string().required().min(4),
+    password: Joi.string().required().min(5),
   }),
 }), login);
 
-app.use('/signup', celebrate({
+app.post('/signup', celebrate({
   body: Joi.object().keys({
     name: Joi.string().max(30).min(2),
     about: Joi.string().max(30).min(2),
@@ -56,6 +57,10 @@ app.use('/cards', cardRouter);
 
 app.use(errorLogger);
 app.use(errors());
+
+app.use(() => {
+  throw new NotFoundError('Запрашиваемый ресурс не найден');
+});
 
 app.use((err, req, res, next) => {
   if (err.status) {

@@ -92,7 +92,7 @@ class Api {
   };
 
   setLike(id, token) {
-    return fetch(`${this._url}/cards/likes/${id}`,
+    return fetch(`${this._url}/cards/${id}/likes`,
         {
             method: "PUT",
             headers: {
@@ -110,7 +110,7 @@ class Api {
 }
 
 deleteLike(id, token) {
-    return fetch(`${this._url}/cards/likes/${id}`,
+    return fetch(`${this._url}/cards/${id}/likes`,
         {
             method: "DELETE",
             headers: {
@@ -150,8 +150,8 @@ deleteLike(id, token) {
 }
 
 const api = new Api({
-  baseUrl: 'https://api.aveor.students.nomoredomains.icu',
-  // baseUrl: 'http://localhost:3000',
+  // baseUrl: 'https://api.aveor.students.nomoredomains.icu',
+  baseUrl: 'http://localhost:3000',
   
 });
 
