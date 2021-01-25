@@ -150,8 +150,8 @@ deleteLike(id, token) {
 }
 
 const api = new Api({
-  // baseUrl: 'https://api.aveor.students.nomoredomains.icu',
-  baseUrl: 'http://localhost:3000',
+  baseUrl: 'https://api.aveor.students.nomoredomains.icu',
+  // baseUrl: 'http://localhost:3000',
   
 });
 
